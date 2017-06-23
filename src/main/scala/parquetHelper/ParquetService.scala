@@ -24,7 +24,6 @@ object ParquetService {
     .add("month", IntegerType)
     .add("day", IntegerType)
 
-
   def batchWay() = {
     //Classic  Batch way
     val batchWay =

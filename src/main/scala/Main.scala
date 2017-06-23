@@ -10,7 +10,6 @@ object Main {
 
   def main(args: Array[String]) {
     val spark = SparkHelper.getAndConfigureSparkSession()
-    import spark.implicits._
 
     //Batch
     ParquetService.batchWay()
@@ -24,14 +23,19 @@ object Main {
     //Read from Kafka
     val kafkaInputDF = KafkaService.fromSink()
 
-    //Debug Stream
+    //Debug Kafka input Stream
     KafkaService.debugStream(kafkaInputDF)
 
-    //@TODO write to cassandra
-    //CassandraDriver.getTestInfo //check everything is fine
+    CassandraDriver.getTestInfo //check everything is fine
 
-    //https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
-    //CassandraDriver.save(staticInputDS.toDF())
+    //Saving using the foreach method
+    CassandraDriver.saveForeach(kafkaInputDF)
+
+    //Saving using Datastax connector's saveToCassandra method
+    //@TODO CassandraDriver.save(kafkaInputDF)
+
+    //@TODO debug
+    CassandraDriver.debug()
 
     spark.streams.awaitAnyTermination()
   }

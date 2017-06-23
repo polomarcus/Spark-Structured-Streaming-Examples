@@ -6,6 +6,8 @@ version := "1.0"
 scalaVersion := "2.11.7"
 val sparkVersion = "2.1.1"
 
+libraryDependencies += "log4j" % "log4j" % "1.2.14"
+
 libraryDependencies += "org.apache.spark" %% "spark-core" % sparkVersion
 libraryDependencies += "org.apache.spark" %% "spark-sql" % sparkVersion
 libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % sparkVersion
