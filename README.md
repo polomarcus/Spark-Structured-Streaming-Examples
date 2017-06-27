@@ -1,4 +1,5 @@
 # Kafka / Cassandra / Spark Structured Streaming Example
+Stream the number of time **Drake is broadcasted** on each radio
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
@@ -7,8 +8,9 @@ The stream is after read to be sink into Kafka.
 Then, Kafka to Cassandra
 
 
-## Output data
-Stored inside Kafka and Cassandra for example only
+## Output data 
+Stored inside Kafka and Cassandra for example only.
+Cassandra's Sinks uses the [ForeachWriter](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.ForeachWriter) and also the [StreamSinkProvider](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.sources.StreamSinkProvider) to compare both sinks.
 
 ### Kafka topic
 topic:test
