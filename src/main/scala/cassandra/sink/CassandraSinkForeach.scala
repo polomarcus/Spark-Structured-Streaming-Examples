@@ -1,6 +1,5 @@
-package cassandra
+package cassandra.sink
 
-import com.datastax.spark.connector.SomeColumns
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.sql.ForeachWriter
 import radio.SimpleSongAggregation
