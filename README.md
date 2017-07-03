@@ -1,5 +1,6 @@
 # Kafka / Cassandra / Spark Structured Streaming Example
-Stream the number of time **Drake is broadcasted** on each radio
+Stream the number of time **Drake is broadcasted** on each radio.
+And also, see how easy is Spark Structured Streaming to use using SparkSQL
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
@@ -15,8 +16,20 @@ Cassandra's Sinks uses the [ForeachWriter](https://spark.apache.org/docs/latest/
 ### Kafka topic
 topic:test
 ### Cassandra Table
+A table for the ForeachWriter
 ```
 CREATE TABLE test.radio (
+  radio varchar,
+  title varchar,
+  artist varchar,
+  count bigint,
+  PRIMARY KEY (radio, title, artist)
+);
+```
+
+A second sink to test the other writer.
+```
+CREATE TABLE test.radioOtherSink (
   radio varchar,
   title varchar,
   artist varchar,
@@ -42,6 +55,11 @@ cqlsh> SELECT * FROM test.radio;
     nova |                     Hype |  Drake |     2
 
 ```
+
+## Useful links
+* https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
+* https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
+* https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
 
 ## Requirements
 * Cassandra 3.10
