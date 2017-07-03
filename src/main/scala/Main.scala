@@ -30,7 +30,8 @@ object Main {
     CassandraDriver.saveForeach(kafkaInputDF)
 
     //Saving using Datastax connector's saveToCassandra method
-    //@ TODO Fix me CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
+    //@ TODO Fix me
+    CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
 
     //@TODO debug
     CassandraDriver.debug()
