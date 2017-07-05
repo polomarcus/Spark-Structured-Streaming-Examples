@@ -49,6 +49,7 @@ object CassandraDriver {
       .writeStream
       .format("cassandra.sink.CassandraSinkProvider")
       .queryName("KafkaToCassandraStreamSinkProvider")
+      .format("update") //@TODO check how to handle this in a custom StreakSnkProvider
       .start()
   }
 
