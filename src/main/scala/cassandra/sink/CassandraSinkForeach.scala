@@ -5,7 +5,11 @@ import org.apache.spark.sql.ForeachWriter
 import radio.SimpleSongAggregation
 import spark.SparkHelper
 
-//https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
+/**
+  * Inspired by
+  * https://github.com/ansrivas/spark-structured-streaming/
+  * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
+  */
 class CassandraSinkForeach() extends ForeachWriter[SimpleSongAggregation] {
   private val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
 
@@ -28,8 +32,9 @@ class CassandraSinkForeach() extends ForeachWriter[SimpleSongAggregation] {
   }
 
   //https://github.com/datastax/spark-cassandra-connector/blob/master/doc/reference.md#cassandra-connection-parameters
-  //connection.keep_alive_ms	5000	Period of time to keep unused connections open
+
   def close(errorOrNull: Throwable): Unit = {
     // close the connection
+    //connection.keep_alive_ms	--> 5000ms :	Period of time to keep unused connections open
   }
 }

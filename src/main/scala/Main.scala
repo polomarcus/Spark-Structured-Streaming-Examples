@@ -11,7 +11,7 @@ object Main {
   def main(args: Array[String]) {
     val spark = SparkHelper.getAndConfigureSparkSession()
 
-    //Batch
+    //Classic Batch
     ParquetService.batchWay()
 
     //Stream
@@ -26,11 +26,11 @@ object Main {
     //Debug Kafka input Stream
     KafkaSink.debugStream(kafkaInputDF)
 
+    CassandraDriver.getTestInfo()
     //Saving using the foreach method
     CassandraDriver.saveForeach(kafkaInputDF)
 
     //Saving using Datastax connector's saveToCassandra method
-    //@ TODO Fix me
     CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
 
     //@TODO debug
