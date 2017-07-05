@@ -7,11 +7,12 @@ import org.apache.spark.sql.sources.StreamSinkProvider
 import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
-//From Holden Karau's https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66
-abstract class CassandraSinkProvider extends StreamSinkProvider {
-  //@TODO Provided process must consume the dataset (e.g. call `foreach` or `collect`).
-  def process(df: DataFrame): Unit
-
+/**
+  From Holden Karau's High Performance Spark
+  https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66
+  *
+  */
+class CassandraSinkProvider extends StreamSinkProvider {
   override def createSink(sqlContext: SQLContext,
                           parameters: Map[String, String],
                           partitionColumns: Seq[String],
@@ -20,15 +21,16 @@ abstract class CassandraSinkProvider extends StreamSinkProvider {
   }
 }
 
-
 /**
-  * idempotent and synchronous (@TODO check asynchronous/synchronous from Datastax's Spark connector) sink
+  * must be idempotent and synchronous (@TODO check asynchronous/synchronous from Datastax's Spark connector) sink
   */
 class CassandraSink() extends Sink {
   def saveToCassandra(df: DataFrame) = {
-    df.printSchema()
     df.show()
-    df.rdd.saveToCassandra(CassandraDriver.namespace, CassandraDriver.StreamProviderTableSink, SomeColumns("title", "artist", "radio", "count"))
+    df.rdd.saveToCassandra(CassandraDriver.namespace,
+      CassandraDriver.StreamProviderTableSink,
+      SomeColumns("title", "artist", "radio", "count")
+    )
   }
 
   /*
