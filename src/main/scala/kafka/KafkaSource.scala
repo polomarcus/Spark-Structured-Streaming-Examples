@@ -5,6 +5,9 @@ import org.apache.spark.sql.functions.{struct, to_json, _}
 import org.apache.spark.sql.types.{StringType, _}
 import spark.SparkHelper
 
+/**
+ @see https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
+ */
 object KafkaSource {
   private val spark = SparkHelper.getSparkSession()
 
@@ -26,13 +29,17 @@ object KafkaSource {
      |    |-- count: long (nullable = true)
 
     * @return
+    *
+    *
+    * startingOffsets should use a JSON coming from the lastest offsets saved in our DB (Cassandra here)
     */
-  def read() = {
+  def read(startingOffsets: String = "earliest") = {
     spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
       .option("subscribe", "test")
+      .option("startingOffsets", startingOffsets) //this only applies when a new query is started and that resuming will always pick up from where the query left off
       .load() //--> Partition, offsets, value, key etc.
       .withColumn(KafkaService.radioStructureName, // nested structure with our json
         from_json($"value".cast(StringType), KafkaService.schemaOutput)

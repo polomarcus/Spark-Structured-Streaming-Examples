@@ -13,6 +13,10 @@ Then, Kafka to Cassandra
 Stored inside Kafka and Cassandra for example only.
 Cassandra's Sinks uses the [ForeachWriter](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.ForeachWriter) and also the [StreamSinkProvider](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.sources.StreamSinkProvider) to compare both sinks.
 One is using the Datastax's Cassandra saveToCassandra method. The other another method, more messy, that uses CQL on a custom foreach loop.
+
+
+From Spark's doc about batch duration:
+> Trigger interval: Optionally, specify the trigger interval. If it is not specified, the system will check for availability of new data as soon as the previous processing has completed. If a trigger time is missed because the previous processing has not completed, then the system will attempt to trigger at the next trigger point, not immediately after the processing has completed.
 ### Kafka topic
 topic:test
 ### Cassandra Table
@@ -38,7 +42,17 @@ CREATE TABLE test.radioOtherSink (
 );
 ```
 
+A 3rd sink to store **kafka metadata** in case checkpointing is not available (application upgrade for example)
+```
+CREATE TABLE test.kafkaMetadata (
+  partition int,
+  offset bigint,
+  PRIMARY KEY (partition)
+);
+```
 
+#### Table Content
+##### Radio
 ```
 cqlsh> SELECT * FROM test.radio;
 
@@ -56,6 +70,14 @@ cqlsh> SELECT * FROM test.radio;
 
 ```
 
+##### Kafka Metadata
+```
+cqlsh> SELECT * FROM test.kafkametadata;
+
+ partition | offset
+-----------+--------
+```
+
 ## Useful links
 * https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
@@ -64,8 +86,10 @@ cqlsh> SELECT * FROM test.radio;
 ## Inspired by
 * https://github.com/ansrivas/spark-structured-streaming
 * From Holden Karau's High Performance Spark : https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66
+* Jay Kreps blog articles
 
 ## Requirements
+@TODO docker compose
 * Cassandra 3.10
 * Kafka 0.10+ (with Zookeeper)
 

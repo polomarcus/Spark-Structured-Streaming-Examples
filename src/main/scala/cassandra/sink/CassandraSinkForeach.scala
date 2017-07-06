@@ -1,5 +1,6 @@
 package cassandra.sink
 
+import cassandra.CassandraDriver
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.sql.ForeachWriter
 import radio.SimpleSongAggregation
@@ -11,9 +12,7 @@ import spark.SparkHelper
   * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
   */
 class CassandraSinkForeach() extends ForeachWriter[SimpleSongAggregation] {
-  private val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
-
-  private def cql(record: SimpleSongAggregation): String = s"""
+  private def cqlRadio(record: SimpleSongAggregation): String = s"""
        insert into test.radio (title, artist, radio, count)
        values('${record.title}', '${record.artist}', '${record.radio}', ${record.count})"""
 
@@ -26,8 +25,8 @@ class CassandraSinkForeach() extends ForeachWriter[SimpleSongAggregation] {
   //https://github.com/datastax/spark-cassandra-connector/blob/master/doc/1_connecting.md#connection-pooling
   def process(record: SimpleSongAggregation) = {
     println(s"Saving record: $record")
-    connector.withSessionDo(session =>
-      session.execute(cql(record))
+    CassandraDriver.connector.withSessionDo(session =>
+      session.execute(cqlRadio(record))
     )
   }
 

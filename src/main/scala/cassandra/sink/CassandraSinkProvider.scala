@@ -6,6 +6,7 @@ import org.apache.spark.sql.execution.streaming.Sink
 import org.apache.spark.sql.sources.StreamSinkProvider
 import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import spark.SparkHelper
 
 /**
   From Holden Karau's High Performance Spark
@@ -25,12 +26,19 @@ class CassandraSinkProvider extends StreamSinkProvider {
   * must be idempotent and synchronous (@TODO check asynchronous/synchronous from Datastax's Spark connector) sink
   */
 class CassandraSink() extends Sink {
-  def saveToCassandra(df: DataFrame) = {
-    df.show()
+  private val spark = SparkHelper.getSparkSession()
+  import spark.implicits._
+  import org.apache.spark.sql.functions._
+
+  private def saveToCassandra(df: DataFrame) = {
+    df.show() //Debug only
+
     df.rdd.saveToCassandra(CassandraDriver.namespace,
       CassandraDriver.StreamProviderTableSink,
       SomeColumns("title", "artist", "radio", "count")
     )
+
+    saveKafkaMetaData(df) //@TODO should be in the same transanction than the previous operation
   }
 
   /*
@@ -40,5 +48,18 @@ class CassandraSink() extends Sink {
   override def addBatch(batchId: Long, df: DataFrame) = {
     println(s"saveToCassandra batchId : ${batchId}")
     saveToCassandra(df)
+  }
+
+  /**
+    * saving the highest value of offset per partition when checkpointing is not available (application upgrade for example)
+    * @TODO should be done in the same transaction as the data linked to the offsets
+    */
+  private def saveKafkaMetaData(df: DataFrame) = {
+    val kafkaMetadata = df.groupBy($"partition").agg(max("$offset"))
+
+    kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,
+      CassandraDriver.KafkaMetadata,
+      SomeColumns("partition", "offset")
+    )
   }
 }

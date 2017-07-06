@@ -3,6 +3,7 @@ package cassandra
 import org.apache.spark.sql._
 import org.apache.spark.sql.cassandra._
 import com.datastax.spark.connector._
+import com.datastax.spark.connector.cql.CassandraConnector
 import kafka.KafkaService
 import radio.SimpleSongAggregation
 import spark.SparkHelper
@@ -12,9 +13,12 @@ object CassandraDriver {
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
 
+  val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
+
   val namespace = "test"
   val foreachTableSink = "radio"
   val StreamProviderTableSink = "radioOtherSink"
+  val KafkaMetadata = "kafkaMetadata"
 
   def getTestInfo() = {
     val rdd = spark.sparkContext.cassandraTable("test", "kv")
@@ -28,7 +32,8 @@ object CassandraDriver {
     * remove kafka metadata and only focus on business structure
     */
   private def getDatasetForCassandra(df: DataFrame) = {
-    df.select(KafkaService.radioStructureName + ".*").as[SimpleSongAggregation]
+    df.select(KafkaService.radioStructureName + ".*")
+      .as[SimpleSongAggregation]
   }
 
   //https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
@@ -39,7 +44,7 @@ object CassandraDriver {
     ds
       .writeStream
       .queryName("KafkaToCassandraForeach")
-      .format("update")
+      //.outputMode("update")
       .foreach(new CassandraSinkForeach())
       .start()
   }
@@ -49,8 +54,15 @@ object CassandraDriver {
       .writeStream
       .format("cassandra.sink.CassandraSinkProvider")
       .queryName("KafkaToCassandraStreamSinkProvider")
-      .format("update") //@TODO check how to handle this in a custom StreakSnkProvider
+      //.outputMode("update") //@TODO check how to handle this in a custom StreakSnkProvider
       .start()
+  }
+
+  /**
+    * @TODO how to retrieve data from cassandra synchrously
+    */
+  def getKafaMetadata() = {
+    //
   }
 
   def debug() = {
