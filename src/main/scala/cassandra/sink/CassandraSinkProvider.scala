@@ -38,7 +38,7 @@ class CassandraSink() extends Sink {
       SomeColumns("title", "artist", "radio", "count")
     )
 
-    saveKafkaMetaData(df) //@TODO should be in the same transanction than the previous operation
+    saveKafkaMetaData(df) //@TODO should be in the same transaction than the previous operation
   }
 
   /*

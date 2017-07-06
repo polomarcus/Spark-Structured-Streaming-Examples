@@ -23,8 +23,8 @@ object KafkaSink {
   }
 
   /**
-  Console sink from Kafka's stream
-    * @TODO should display Kafka's metadata (offset etc.)
+      Console sink from Kafka's stream
+    *
     */
   def debugStream(staticKafkaInputDF: DataFrame) = {
     staticKafkaInputDF

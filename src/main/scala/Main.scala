@@ -20,7 +20,7 @@ object Main {
     val queryToKafka = KafkaSink.writeStream(staticInputDF)
 
     //Read from Kafka
-    //@TODO read from Cassandra last offsets saved
+    //@TODO read from Cassandra last offsets saved, /!\ synchrously
     //val startingOffsets = CassandraDriver.getKafaMetadata()
     val kafkaInputDF = KafkaSource.read(startingOffsets = "earliest")
 
@@ -29,7 +29,7 @@ object Main {
 
     CassandraDriver.getTestInfo()
     //Saving using the foreach method
-    //CassandraDriver.saveForeach(kafkaInputDF)
+    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL
 
     //Saving using Datastax connector's saveToCassandra method
     CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
