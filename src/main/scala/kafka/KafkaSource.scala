@@ -33,14 +33,14 @@ object KafkaSource {
     *
     * startingOffsets should use a JSON coming from the lastest offsets saved in our DB (Cassandra here)
     */
-  def read(startingOffsets: String = "earliest") = {
+  def read(startingOption: String = "startingOffsets", partitionsAndOffsets: String = "earliest") = {
     spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "test")
-      .option("startingOffsets", startingOffsets) //this only applies when a new query is started and that resuming will always pick up from where the query left off
-      .load() //--> Partition, offsets, value, key etc.
+      .option("subscribe", KafkaService.topicName)
+      .option(startingOption, partitionsAndOffsets) //this only applies when a new query is started and that resuming will always pick up from where the query left off
+      .load()
       .withColumn(KafkaService.radioStructureName, // nested structure with our json
         from_json($"value".cast(StringType), KafkaService.schemaOutput)
       ) //From binary to JSON object

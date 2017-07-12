@@ -4,7 +4,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.cassandra._
 import com.datastax.spark.connector._
 import com.datastax.spark.connector.cql.CassandraConnector
-import kafka.KafkaService
+import kafka.{KafkaMetadata, KafkaService}
 import radio.SimpleSongAggregation
 import spark.SparkHelper
 import sink._
@@ -18,7 +18,7 @@ object CassandraDriver {
   val namespace = "test"
   val foreachTableSink = "radio"
   val StreamProviderTableSink = "radioOtherSink"
-  val KafkaMetadata = "kafkaMetadata"
+  val kafkaMetadata = "kafkametadata"
 
   def getTestInfo() = {
     val rdd = spark.sparkContext.cassandraTable("test", "kv")
@@ -59,14 +59,43 @@ object CassandraDriver {
   }
 
   /**
-    * @TODO how to retrieve data from cassandra synchrously
+    * @TODO how to retrieve data from cassandra synchronously
+    * @TODO handle more topic name, for our example we only use the topic "test"
+    *
+    *  we can use collect here as kafkameta data is not big at all
+    *
+    * if no metadata are found, we would use the earliest offsets.
+    *
+    * @see https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-batch
+    *  assign	json string {"topicA":[0,1],"topicB":[2,4]}
+    *  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source.
     */
   def getKafaMetadata() = {
-    //
+    val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+
+    if(kafkaMetadataRDD.isEmpty) {
+      ("startingOffsets", "earliest")
+    } else {
+      ("assign", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
+    }
+  }
+
+  /**
+    * @param array
+    * @return {"test":[0,1]}
+    */
+  def transformKafkaMetadataArrayToJson(array: Array[CassandraRow]) : String = {
+      s""""
+         {"${KafkaService.topicName}":
+          [
+           ${array(0).getLong("partition")}, ${array(0).getLong("offset")}
+          ]
+         }
+      """
   }
 
   def debug() = {
-   val output = spark.sparkContext.cassandraTable("test", "radio")
+   val output = spark.sparkContext.cassandraTable(namespace, foreachTableSink)
 
     println(output.count)
     /*  output

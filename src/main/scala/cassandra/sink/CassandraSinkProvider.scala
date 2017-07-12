@@ -31,9 +31,10 @@ class CassandraSink() extends Sink {
   import org.apache.spark.sql.functions._
 
   private def saveToCassandra(df: DataFrame) = {
+    println("Saving this DF to Cassandra")
     df.show() //Debug only
 
-    df.rdd.saveToCassandra(CassandraDriver.namespace,
+    df.select($"title",$"artist",$"radio",$"count").rdd.saveToCassandra(CassandraDriver.namespace,
       CassandraDriver.StreamProviderTableSink,
       SomeColumns("title", "artist", "radio", "count")
     )
@@ -57,8 +58,10 @@ class CassandraSink() extends Sink {
   private def saveKafkaMetaData(df: DataFrame) = {
     val kafkaMetadata = df.groupBy($"partition").agg(max("$offset"))
 
+    kafkaMetadata.show()
+
     kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,
-      CassandraDriver.KafkaMetadata,
+      CassandraDriver.kafkaMetadata,
       SomeColumns("partition", "offset")
     )
   }
