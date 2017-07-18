@@ -52,12 +52,13 @@ class CassandraSink() extends Sink {
     println("saveKafkaMetaData")
     kafkaMetadata.show()
 
-    kafkaMetadata.collect().foreach(CassandraKafkaMetadata.save)
-
-    /*kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,
-      CassandraDriver.kafkaMetadata
+    kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,
+      CassandraDriver.kafkaMetadata,
       SomeColumns("partition", "offset")
-    )*/
+    )
+    
+    //Otherway to save offset inside Cassandra
+    //kafkaMetadata.collect().foreach(CassandraKafkaMetadata.save)
   }
 }
 
