@@ -17,21 +17,25 @@ object CassandraDriver {
 
   val namespace = "test"
   val foreachTableSink = "radio"
-  val StreamProviderTableSink = "radioOtherSink"
+  val StreamProviderTableSink = "radioothersink"
   val kafkaMetadata = "kafkametadata"
 
   def getTestInfo() = {
-    val rdd = spark.sparkContext.cassandraTable("test", "kv")
-    println(rdd.count)
-    println(rdd.first)
-    println(rdd.map(_.getInt("value")).sum)
+    val rdd = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+
+    if( !rdd.isEmpty ) {
+      println(rdd.count)
+      println(rdd.first)
+    } else {
+      println(s"$namespace, $kafkaMetadata is empty in cassandra")
+    }
   }
 
 
   /**
     * remove kafka metadata and only focus on business structure
     */
-  private def getDatasetForCassandra(df: DataFrame) = {
+  def getDatasetForCassandra(df: DataFrame) = {
     df.select(KafkaService.radioStructureName + ".*")
       .as[SimpleSongAggregation]
   }
@@ -54,7 +58,6 @@ object CassandraDriver {
       .writeStream
       .format("cassandra.sink.CassandraSinkProvider")
       .queryName("KafkaToCassandraStreamSinkProvider")
-      .format("update") //@TODO check how to handle this in a custom StreakSnkProvider
       .start()
   }
 
@@ -73,25 +76,28 @@ object CassandraDriver {
   def getKafaMetadata() = {
     val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
-    if(kafkaMetadataRDD.isEmpty) {
+    val output = if(kafkaMetadataRDD.isEmpty) {
       ("startingOffsets", "earliest")
     } else {
-      ("assign", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
+      ("startingOffsets", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
     }
+
+    println("getKafkaMetadata " + output.toString)
+
+    output
   }
 
   /**
     * @param array
-    * @return {"test":[0,1]}
+    * @return {"topicA":{"0":23,"1":-1},"topicB":{"0":-2}}
     */
   def transformKafkaMetadataArrayToJson(array: Array[CassandraRow]) : String = {
-      s""""
-         {"${KafkaService.topicName}":
-          [
-           ${array(0).getLong("partition")}, ${array(0).getLong("offset")}
-          ]
+      s"""{"${KafkaService.topicName}":
+          {
+           "${array(0).getLong("partition")}": ${array(0).getLong("offset")}
+          }
          }
-      """
+      """.replaceAll("\n", "").replaceAll(" ", "")
   }
 
   def debug() = {

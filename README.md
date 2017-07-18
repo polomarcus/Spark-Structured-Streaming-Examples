@@ -18,8 +18,9 @@ One is using the Datastax's Cassandra saveToCassandra method. The other another 
 From Spark's doc about batch duration:
 > Trigger interval: Optionally, specify the trigger interval. If it is not specified, the system will check for availability of new data as soon as the previous processing has completed. If a trigger time is missed because the previous processing has not completed, then the system will attempt to trigger at the next trigger point, not immediately after the processing has completed.
 
-    ### Kafka topic
-topic:test
+### Kafka topic
+One topic "test" with only one partition
+
 ### Cassandra Table
 A table for the ForeachWriter
 ```
@@ -52,6 +53,7 @@ CREATE TABLE test.kafkaMetadata (
 );
 ```
 
+
 #### Table Content
 ##### Radio
 ```
@@ -72,11 +74,20 @@ cqlsh> SELECT * FROM test.radio;
 ```
 
 ##### Kafka Metadata
+When doing an application upgrade, we cannot use [checkpointing](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#recovering-from-failures-with-checkpointing), so we need to store our offset into a external datasource, here Cassandra is chosen.
+Then, when starting our kafka source we need to use the option "StartingOffsets" with a json string like 
+```
+""" {"topicA":{"0":23,"1":-1},"topicB":{"0":-2}} """
+```
+Learn more [in the official Spark's doc](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-for-batch-queries).
+
+In the case, there is not Kafka's metadata stored inside Cassandra, **earliest** is used.
+
 ```
 cqlsh> SELECT * FROM test.kafkametadata;
-
  partition | offset
 -----------+--------
+         0 |    171
 ```
 
 ## Useful links

@@ -11,7 +11,7 @@ object Main {
     val spark = SparkHelper.getAndConfigureSparkSession()
 
     //Classic Batch
-    ParquetService.batchWay()
+    //ParquetService.batchWay()
 
     //Stream
     val staticInputDF = ParquetService.streamingWay()
@@ -28,8 +28,9 @@ object Main {
     KafkaSink.debugStream(kafkaInputDF)
 
     CassandraDriver.getTestInfo()
+
     //Saving using the foreach method
-    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL
+    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL  --> just here for example
 
     //Saving using Datastax connector's saveToCassandra method
     CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
