@@ -12,12 +12,13 @@ Then, Kafka to Cassandra
 ## Output data 
 Stored inside Kafka and Cassandra for example only.
 Cassandra's Sinks uses the [ForeachWriter](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.ForeachWriter) and also the [StreamSinkProvider](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.sources.StreamSinkProvider) to compare both sinks.
-One is using the Datastax's Cassandra saveToCassandra method. The other another method, messier (untyped), that uses CQL on a custom foreach loop.
 
+One is using the Datastax's Cassandra saveToCassandra method. The other another method, messier (untyped), that uses CQL on a custom foreach loop.
 
 From Spark's doc about batch duration:
 > Trigger interval: Optionally, specify the trigger interval. If it is not specified, the system will check for availability of new data as soon as the previous processing has completed. If a trigger time is missed because the previous processing has not completed, then the system will attempt to trigger at the next trigger point, not immediately after the processing has completed.
-### Kafka topic
+
+    ### Kafka topic
 topic:test
 ### Cassandra Table
 A table for the ForeachWriter
@@ -85,8 +86,8 @@ cqlsh> SELECT * FROM test.kafkametadata;
 
 ## Inspired by
 * https://github.com/ansrivas/spark-structured-streaming
-* From Holden Karau's High Performance Spark : https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66
-* Jay Kreps blog articles
+* [Holden Karau's High Performance Spark](https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66)
+* [Jay Kreps blog articles](https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f)
 
 ## Requirements
 @TODO docker compose

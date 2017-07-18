@@ -9,8 +9,9 @@ object Main {
 
   def main(args: Array[String]) {
     val spark = SparkHelper.getAndConfigureSparkSession()
+
     //Classic Batch
-    //ParquetService.batchWay()
+    ParquetService.batchWay()
 
     //Stream
     val staticInputDF = ParquetService.streamingWay()
@@ -26,6 +27,7 @@ object Main {
     //Debug Kafka input Stream
     KafkaSink.debugStream(kafkaInputDF)
 
+    CassandraDriver.getTestInfo()
     //Saving using the foreach method
     //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL
 
