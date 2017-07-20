@@ -14,6 +14,8 @@ object KafkaService {
 
   val radioStructureName = "radioCount"
 
+  val topicName = "test"
+
   val bootstrapServers = "localhost:9092"
 
   val schemaOutput = new StructType()

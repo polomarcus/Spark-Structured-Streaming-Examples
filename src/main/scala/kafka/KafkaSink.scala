@@ -22,17 +22,24 @@ object KafkaSink {
       .start()
   }
 
-  //Console sink from Kafka's stream
+  /**
+      Console sink from Kafka's stream
+    *
+    */
   def debugStream(staticKafkaInputDF: DataFrame) = {
-    staticKafkaInputDF.select($"value".cast(StringType)).alias("value") //to avoid using cast to string multiple times
-      .select( get_json_object($"value", "$.radio").alias("radio"),
-      get_json_object($"value", "$.title").alias("title"),
-      get_json_object($"value", "$.artist").alias("artist"),
-      get_json_object($"value", "$.count").alias("count")
-    )
+    staticKafkaInputDF
+      .select($"topic", $"partition", $"offset", $"value".cast(StringType).alias("value")) //to avoid using cast to string multiple times
+      .select(
+        get_json_object($"value", "$.radio").alias("radio"),
+        get_json_object($"value", "$.title").alias("title"),
+        get_json_object($"value", "$.artist").alias("artist"),
+        get_json_object($"value", "$.count").alias("count"),
+        $"topic",
+        $"partition",
+        $"offset"
+      )
       .writeStream
-      .option("startingOffsets", "earliest")
-      .outputMode("update")
+      .queryName("Debug Stream Kafka")
       .format("console")
       .start()
   }

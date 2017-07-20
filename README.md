@@ -12,9 +12,15 @@ Then, Kafka to Cassandra
 ## Output data 
 Stored inside Kafka and Cassandra for example only.
 Cassandra's Sinks uses the [ForeachWriter](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.ForeachWriter) and also the [StreamSinkProvider](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.sql.sources.StreamSinkProvider) to compare both sinks.
-One is using the Datastax's Cassandra saveToCassandra method. The other another method, more messy, that uses CQL on a custom foreach loop.
+
+One is using the Datastax's Cassandra saveToCassandra method. The other another method, messier (untyped), that uses CQL on a custom foreach loop.
+
+From Spark's doc about batch duration:
+> Trigger interval: Optionally, specify the trigger interval. If it is not specified, the system will check for availability of new data as soon as the previous processing has completed. If a trigger time is missed because the previous processing has not completed, then the system will attempt to trigger at the next trigger point, not immediately after the processing has completed.
+
 ### Kafka topic
-topic:test
+One topic "test" with only one partition
+
 ### Cassandra Table
 A table for the ForeachWriter
 ```
@@ -38,7 +44,18 @@ CREATE TABLE test.radioOtherSink (
 );
 ```
 
+A 3rd sink to store **kafka metadata** in case checkpointing is not available (application upgrade for example)
+```
+CREATE TABLE test.kafkaMetadata (
+  partition int,
+  offset bigint,
+  PRIMARY KEY (partition)
+);
+```
 
+
+#### Table Content
+##### Radio
 ```
 cqlsh> SELECT * FROM test.radio;
 
@@ -56,16 +73,36 @@ cqlsh> SELECT * FROM test.radio;
 
 ```
 
+##### Kafka Metadata
+When doing an application upgrade, we cannot use [checkpointing](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#recovering-from-failures-with-checkpointing), so we need to store our offset into a external datasource, here Cassandra is chosen.
+Then, when starting our kafka source we need to use the option "StartingOffsets" with a json string like 
+```
+""" {"topicA":{"0":23,"1":-1},"topicB":{"0":-2}} """
+```
+Learn more [in the official Spark's doc](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-for-batch-queries).
+
+In the case, there is not Kafka's metadata stored inside Cassandra, **earliest** is used.
+
+```
+cqlsh> SELECT * FROM test.kafkametadata;
+ partition | offset
+-----------+--------
+         0 |    171
+```
+
 ## Useful links
+* [Processing Data in Apache Kafka with Structured Streaming in Apache Spark 2.2](https://databricks.com/blog/2017/04/26/processing-data-in-apache-kafka-with-structured-streaming-in-apache-spark-2-2.html)
 * https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
 
 ## Inspired by
 * https://github.com/ansrivas/spark-structured-streaming
-* From Holden Karau's High Performance Spark : https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66
+* [Holden Karau's High Performance Spark](https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66)
+* [Jay Kreps blog articles](https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f)
 
 ## Requirements
+@TODO docker compose
 * Cassandra 3.10
 * Kafka 0.10+ (with Zookeeper)
 

@@ -3,7 +3,8 @@ package cassandra
 import org.apache.spark.sql._
 import org.apache.spark.sql.cassandra._
 import com.datastax.spark.connector._
-import kafka.KafkaService
+import com.datastax.spark.connector.cql.CassandraConnector
+import kafka.{KafkaMetadata, KafkaService}
 import radio.SimpleSongAggregation
 import spark.SparkHelper
 import sink._
@@ -12,23 +13,31 @@ object CassandraDriver {
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
 
+  val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
+
   val namespace = "test"
   val foreachTableSink = "radio"
-  val StreamProviderTableSink = "radioOtherSink"
+  val StreamProviderTableSink = "radioothersink"
+  val kafkaMetadata = "kafkametadata"
 
   def getTestInfo() = {
-    val rdd = spark.sparkContext.cassandraTable("test", "kv")
-    println(rdd.count)
-    println(rdd.first)
-    println(rdd.map(_.getInt("value")).sum)
+    val rdd = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+
+    if( !rdd.isEmpty ) {
+      println(rdd.count)
+      println(rdd.first)
+    } else {
+      println(s"$namespace, $kafkaMetadata is empty in cassandra")
+    }
   }
 
 
   /**
     * remove kafka metadata and only focus on business structure
     */
-  private def getDatasetForCassandra(df: DataFrame) = {
-    df.select(KafkaService.radioStructureName + ".*").as[SimpleSongAggregation]
+  def getDatasetForCassandra(df: DataFrame) = {
+    df.select(KafkaService.radioStructureName + ".*")
+      .as[SimpleSongAggregation]
   }
 
   //https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
@@ -39,7 +48,7 @@ object CassandraDriver {
     ds
       .writeStream
       .queryName("KafkaToCassandraForeach")
-      .format("update")
+      //.outputMode("update")
       .foreach(new CassandraSinkForeach())
       .start()
   }
@@ -48,13 +57,51 @@ object CassandraDriver {
     df
       .writeStream
       .format("cassandra.sink.CassandraSinkProvider")
+      .outputMode("update")
       .queryName("KafkaToCassandraStreamSinkProvider")
-      .format("update") //@TODO check how to handle this in a custom StreakSnkProvider
       .start()
   }
 
+  /**
+    * @TODO handle more topic name, for our example we only use the topic "test"
+    *
+    *  we can use collect here as kafkameta data is not big at all
+    *
+    * if no metadata are found, we would use the earliest offsets.
+    *
+    * @see https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-batch
+    *  assign	json string {"topicA":[0,1],"topicB":[2,4]}
+    *  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source.
+    */
+  def getKafaMetadata() = {
+    val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+
+    val output = if(kafkaMetadataRDD.isEmpty) {
+      ("startingOffsets", "earliest")
+    } else {
+      ("startingOffsets", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
+    }
+
+    println("getKafkaMetadata " + output.toString)
+
+    output
+  }
+
+  /**
+    * @param array
+    * @return {"topicA":{"0":23,"1":-1},"topicB":{"0":-2}}
+    */
+  def transformKafkaMetadataArrayToJson(array: Array[CassandraRow]) : String = {
+      s"""{"${KafkaService.topicName}":
+          {
+           "${array(0).getLong("partition")}": ${array(0).getLong("offset")}
+          }
+         }
+      """.replaceAll("\n", "").replaceAll(" ", "")
+  }
+
   def debug() = {
-   val output = spark.sparkContext.cassandraTable("test", "radio")
+   val output = spark.sparkContext.cassandraTable(namespace, foreachTableSink)
 
     println(output.count)
     /*  output
