@@ -21,6 +21,13 @@ From Spark's doc about batch duration:
 ### Kafka topic
 One topic "test" with only one partition
 
+#### Send a message
+```
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test 
+
+
+{"radio":"skyrock","artist":"Drake","title":"Hold On We’Re Going Home","count":38} 
+```
 ### Cassandra Table
 A table for the ForeachWriter
 ```

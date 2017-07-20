@@ -4,7 +4,7 @@ name := "SparkStructuredStreamingCassandra"
 
 version := "1.0"
 scalaVersion := "2.11.7"
-val sparkVersion = "2.1.1"
+val sparkVersion = "2.2.0"
 
 libraryDependencies += "log4j" % "log4j" % "1.2.14"
 
