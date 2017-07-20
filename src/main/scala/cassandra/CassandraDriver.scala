@@ -48,7 +48,7 @@ object CassandraDriver {
     ds
       .writeStream
       .queryName("KafkaToCassandraForeach")
-      //.outputMode("update")
+      .outputMode("update")
       .foreach(new CassandraSinkForeach())
       .start()
   }
@@ -104,8 +104,5 @@ object CassandraDriver {
    val output = spark.sparkContext.cassandraTable(namespace, foreachTableSink)
 
     println(output.count)
-    /*  output
-     .select("radio, artist, title, count")
-     .take(10).foreach(println)*/
   }
 }

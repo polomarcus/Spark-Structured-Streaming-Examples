@@ -1,13 +1,12 @@
 # Kafka / Cassandra / Spark Structured Streaming Example
 Stream the number of time **Drake is broadcasted** on each radio.
-And also, see how easy is Spark Structured Streaming to use using SparkSQL
+And also, see how easy is Spark Structured Streaming 2.2.0 to use using Spark SQL's Dataframe API
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
 
 The stream is after read to be sink into Kafka.
 Then, Kafka to Cassandra
-
 
 ## Output data 
 Stored inside Kafka and Cassandra for example only.
