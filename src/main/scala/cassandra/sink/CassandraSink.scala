@@ -56,7 +56,7 @@ class CassandraSink() extends Sink {
       CassandraDriver.kafkaMetadata,
       SomeColumns("partition", "offset")
     )
-    
+
     //Otherway to save offset inside Cassandra
     //kafkaMetadata.collect().foreach(CassandraKafkaMetadata.save)
   }

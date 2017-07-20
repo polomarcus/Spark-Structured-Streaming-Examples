@@ -57,12 +57,12 @@ object CassandraDriver {
     df
       .writeStream
       .format("cassandra.sink.CassandraSinkProvider")
+      .outputMode("update")
       .queryName("KafkaToCassandraStreamSinkProvider")
       .start()
   }
 
   /**
-    * @TODO how to retrieve data from cassandra synchronously
     * @TODO handle more topic name, for our example we only use the topic "test"
     *
     *  we can use collect here as kafkameta data is not big at all

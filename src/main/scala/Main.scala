@@ -13,28 +13,26 @@ object Main {
     //Classic Batch
     //ParquetService.batchWay()
 
-    //Stream
+    //Generate a "fake" stream from a parquet file
     val staticInputDF = ParquetService.streamingWay()
 
-    //Stream To Kafka
+    //Send it to Kafka for our example
     val queryToKafka = KafkaSink.writeStream(staticInputDF)
 
-    //Read from Kafka
-    //@TODO /!\ synchronously
+    //Finally read it from kafka, in case checkpointing is not available we read last offsets saved from Cassandra
     val (startingOption, partitionsAndOffsets) = CassandraDriver.getKafaMetadata()
     val kafkaInputDF = KafkaSource.read(startingOption, partitionsAndOffsets)
 
-    //Debug Kafka input Stream
+    //Just debugging Kafka source into our console
     KafkaSink.debugStream(kafkaInputDF)
-
-    CassandraDriver.getTestInfo()
-
-    //Saving using the foreach method
-    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL  --> just here for example
 
     //Saving using Datastax connector's saveToCassandra method
     CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
 
+    //Saving using the foreach method
+    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL  --> just here for example
+
+    //Wait for all streams to finish
     spark.streams.awaitAnyTermination()
   }
 }
