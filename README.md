@@ -91,6 +91,7 @@ cqlsh> SELECT * FROM test.kafkametadata;
 ```
 
 ## Useful links
+* [Processing Data in Apache Kafka with Structured Streaming in Apache Spark 2.2](https://databricks.com/blog/2017/04/26/processing-data-in-apache-kafka-with-structured-streaming-in-apache-spark-2-2.html)
 * https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
