@@ -1,4 +1,4 @@
-package cassandra.sink
+package cassandra.StreamSinkProvider
 
 import cassandra.{CassandraDriver, CassandraKafkaMetadata}
 import org.apache.spark.sql.DataFrame

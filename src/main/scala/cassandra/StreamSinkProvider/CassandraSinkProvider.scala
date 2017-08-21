@@ -1,4 +1,4 @@
-package cassandra.sink
+package cassandra.StreamSinkProvider
 
 import org.apache.spark.sql.sources.StreamSinkProvider
 import org.apache.spark.sql.streaming.OutputMode
