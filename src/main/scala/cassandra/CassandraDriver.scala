@@ -1,13 +1,13 @@
 package cassandra
 
 import org.apache.spark.sql._
-import org.apache.spark.sql.cassandra._
 import com.datastax.spark.connector._
 import com.datastax.spark.connector.cql.CassandraConnector
-import kafka.{KafkaMetadata, KafkaService}
+import kafka.KafkaService
 import radio.SimpleSongAggregation
 import spark.SparkHelper
-import sink._
+import StreamSinkProvider._
+import foreachSink._
 
 object CassandraDriver {
   private val spark = SparkHelper.getSparkSession()

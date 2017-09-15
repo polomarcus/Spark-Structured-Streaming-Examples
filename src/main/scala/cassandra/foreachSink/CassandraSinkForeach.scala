@@ -1,10 +1,8 @@
-package cassandra.sink
+package cassandra.foreachSink
 
 import cassandra.CassandraDriver
-import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.sql.ForeachWriter
 import radio.SimpleSongAggregation
-import spark.SparkHelper
 
 /**
   * Inspired by

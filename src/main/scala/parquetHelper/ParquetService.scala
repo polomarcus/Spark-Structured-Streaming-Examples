@@ -1,6 +1,6 @@
 package parquetHelper
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType}
 import radio.Song
 import spark.SparkHelper
