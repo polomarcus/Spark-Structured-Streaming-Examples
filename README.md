@@ -97,6 +97,8 @@ cqlsh> SELECT * FROM test.radio;
 ```
 
 ##### Kafka Metadata
+@TODO Verify this below information. Cf this [SO comment](https://stackoverflow.com/questions/46153105/how-to-get-kafka-offsets-for-structured-query-for-manual-and-reliable-offset-man/46174353?noredirect=1#comment79536515_46174353)
+
 When doing an application upgrade, we cannot use [checkpointing](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#recovering-from-failures-with-checkpointing), so we need to store our offset into a external datasource, here Cassandra is chosen.
 Then, when starting our kafka source we need to use the option "StartingOffsets" with a json string like 
 ```
