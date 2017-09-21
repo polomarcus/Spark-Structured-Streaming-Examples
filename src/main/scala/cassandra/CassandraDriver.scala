@@ -56,7 +56,7 @@ object CassandraDriver {
   def saveStreamSinkProvider(df: DataFrame) = {
     df
       .writeStream
-      .format("cassandra.sink.CassandraSinkProvider")
+      .format("cassandra.StreamSinkProvider.CassandraSinkProvider")
       .outputMode("update")
       .queryName("KafkaToCassandraStreamSinkProvider")
       .start()
