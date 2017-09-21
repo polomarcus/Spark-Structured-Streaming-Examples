@@ -12,7 +12,7 @@ object SparkHelper {
       .set("spark.sql.streaming.checkpointLocation", "checkpoint")
 
     val sc = new SparkContext(conf)
-    sc.setLogLevel("ERROR") //@TODO not working for block manager
+    sc.setLogLevel("WARN")
 
     SparkSession
       .builder()

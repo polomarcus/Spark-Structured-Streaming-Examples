@@ -2,6 +2,23 @@
 Stream the number of time **Drake is broadcasted** on each radio.
 And also, see how easy is Spark Structured Streaming 2.2.0 to use using Spark SQL's Dataframe API
 
+## Run the Project
+```
+sbt run
+```
+
+### Run the project after another time
+As checkpointing enables us to process our data exactly once, we need to delete the checkpointing folders to re run our examples.
+```
+rm -rf checkpoint/
+sbt run
+```
+### Requirements
+@TODO docker compose
+* Cassandra 3.10 (see below to create the 2 tables the project uses)
+* Kafka 0.10+ (with Zookeeper), with one topic "test". See [this Kafka script](https://github.com/polomarcus/Spark-Structured-Streaming-Examples/blob/master/stackScripts/startKafkaStack.sh)
+
+
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
 
@@ -27,6 +44,7 @@ One topic "test" with only one partition
 
 {"radio":"skyrock","artist":"Drake","title":"Hold On We’Re Going Home","count":38} 
 ```
+
 ### Cassandra Table
 A table for the ForeachWriter
 ```
@@ -59,7 +77,6 @@ CREATE TABLE test.kafkaMetadata (
 );
 ```
 
-
 #### Table Content
 ##### Radio
 ```
@@ -85,7 +102,7 @@ Then, when starting our kafka source we need to use the option "StartingOffsets"
 ```
 """ {"topicA":{"0":23,"1":-1},"topicB":{"0":-2}} """
 ```
-Learn more [in the official Spark's doc](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-for-batch-queries).
+Learn more [in the official Spark's doc for Kafka](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html#creating-a-kafka-source-for-batch-queries).
 
 In the case, there is not Kafka's metadata stored inside Cassandra, **earliest** is used.
 
@@ -107,8 +124,4 @@ cqlsh> SELECT * FROM test.kafkametadata;
 * [Holden Karau's High Performance Spark](https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66)
 * [Jay Kreps blog articles](https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f)
 
-## Requirements
-@TODO docker compose
-* Cassandra 3.10
-* Kafka 0.10+ (with Zookeeper)
 
