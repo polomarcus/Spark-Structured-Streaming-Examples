@@ -11,7 +11,7 @@ object KafkaService {
 
   val topicName = "test"
 
-  val bootstrapServers = "localhost:9092"
+  val bootstrapServers = "localhost:29092" //localhost:9092"
 
   val schemaOutput = new StructType()
     .add("title", StringType)

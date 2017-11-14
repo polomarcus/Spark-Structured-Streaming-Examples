@@ -13,11 +13,27 @@ As checkpointing enables us to process our data exactly once, we need to delete 
 rm -rf checkpoint/
 sbt run
 ```
-### Requirements
-@TODO docker compose
-* Cassandra 3.10 (see below to create the 2 tables the project uses)
-* Kafka 0.10+ (with Zookeeper), with one topic "test". See [this Kafka script](https://github.com/polomarcus/Spark-Structured-Streaming-Examples/blob/master/stackScripts/startKafkaStack.sh)
+## Requirements
+### [docker compose](https://github.com/docker/compose/releases/tag/1.17.1)
+```
+curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+```
 
+#### Run
+Start the ZooKeeper and Kafka containers in detached mode (-d)
+```
+docker-compose -f docker-compose-kafka.yml up -d
+```
+
+Create a topic named "test"
+```
+./startKafkaStack.sh
+```
+
+
+* Cassandra 3.10 (see below to create the 2 tables the project uses)
+* [Kafka and Zookeeper from Confluent](https://docs.confluent.io/current/installation/docker/docs/quickstart.html#getting-started-with-docker-compose)
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
