@@ -1,6 +1,6 @@
 resolvers += "Spark Packages Repo" at "https://dl.bintray.com/spark-packages/maven"
 
-name := "SparkStructuredStreamingCassandra"
+name := "Spark-Structured-Streaming-Examples"
 
 version := "1.0"
 scalaVersion := "2.11.7"

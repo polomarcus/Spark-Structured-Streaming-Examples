@@ -120,6 +120,14 @@ cqlsh> SELECT * FROM test.kafkametadata;
 * https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
+* [Arbitrary Stateful Processing in Apache Spark’s Structured Streaming][1]
+* [Deep dive stateful stream processing][2] 
+* [Official documentation][3]
+
+
+  [1]: https://databricks.com/blog/2017/10/17/arbitrary-stateful-processing-in-apache-sparks-structured-streaming.html
+  [2]: https://databricks.com/session/deep-dive-stateful-stream-processing
+  [3]: https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#arbitrary-stateful-operations
 
 ## Inspired by
 * https://github.com/ansrivas/spark-structured-streaming
