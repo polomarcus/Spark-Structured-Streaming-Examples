@@ -5,41 +5,70 @@ import org.apache.spark.sql.functions.{struct, to_json, _}
 import org.apache.spark.sql.types.StringType
 import spark.SparkHelper
 import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
-import radio.SimpleSongAggregation
+import radio.{ArtistAggregationState, SimpleSongAggregation, SimpleSongAggregationKafka}
 
 object MapGroupsWithState {
   private val spark = SparkHelper.getSparkSession()
 
   import spark.implicits._
 
-  /*
-  def updateAcrossEvents(user:String,
-                         inputs: Iterator[InputRow],
-                         oldState: GroupState[UserState]):UserState = {
-    var state:UserState = if (oldState.exists) oldState.get else UserState(user,
-      "",
-      new java.sql.Timestamp(6284160000000L),
-      new java.sql.Timestamp(6284160L)
-    )
-    // we simply specify an old date that we can compare against and
-    // immediately update based on the values in our data
 
+  def updateArtistStateWithEvent(state: ArtistAggregationState, artistCount : SimpleSongAggregation) = {
+    if(state.artist == artistCount.artist) {
+      ArtistAggregationState(state.artist, state.count + artistCount.count)
+    } else {
+      state
+    }
+  }
+
+  def updateAcrossEvents(artist:String,
+                         inputs: Iterator[SimpleSongAggregation],
+                         oldState: GroupState[ArtistAggregationState]): ArtistAggregationState = {
+
+    var state: ArtistAggregationState = if (oldState.exists)
+      oldState.get
+    else
+      ArtistAggregationState(artist, 1L)
+
+    // for every rows, let's count by artist the number of broadcast, instead of counting by artist, title and radio
     for (input <- inputs) {
-      state = updateUserStateWithEvent(state, input)
+      state = updateArtistStateWithEvent(state, input)
       oldState.update(state)
     }
-    state
-  }*/
 
-  /*def write(ds: Dataset[SimpleSongAggregation] ) = {
-    ds
+    state
+  }
+
+
+  /**
+    *
+    * @return
+    *
+    * Batch: 4
+      -------------------------------------------
+      +------+-----+
+      |artist|count|
+      +------+-----+
+      | Drake| 4635|
+      +------+-----+
+
+      Batch: 5
+      -------------------------------------------
+      +------+-----+
+      |artist|count|
+      +------+-----+
+      | Drake| 4710|
+      +------+-----+
+    */
+  def write(ds: Dataset[SimpleSongAggregationKafka] ) = {
+    ds.select($"radioCount.title", $"radioCount.artist", $"radioCount.radio", $"radioCount.count")
+      .as[SimpleSongAggregation]
       .groupByKey(_.artist)
-         .mapGroupsWithState()
+      .mapGroupsWithState(GroupStateTimeout.NoTimeout)(updateAcrossEvents) //we can control what should be done with the state when no update is received after a timeout.
       .writeStream
-      .outputMode("complete")
+      .outputMode(OutputMode.Update())
       .format("console")
-      .queryName("Kafka - Count number of broadcasts for a title/artist by radio")
-      .option("topic", "test")
+      .queryName("mapGroupsWithState - counting artist broadcast")
       .start()
-  }*/
+  }
 }

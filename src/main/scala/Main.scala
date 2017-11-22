@@ -2,6 +2,7 @@ package main
 
 import cassandra.CassandraDriver
 import kafka.{KafkaSink, KafkaSource}
+import mapGroupsWithState.MapGroupsWithState
 import parquetHelper.ParquetService
 import spark.SparkHelper
 
@@ -31,6 +32,9 @@ object Main {
 
     //Saving using the foreach method
     //CassandraDriver.saveForeach(kafkaInputDS) //Untype/unsafe method using CQL  --> just here for example
+
+    //Another fun example managing an arbitrary state
+    MapGroupsWithState.write(kafkaInputDS)
 
     //Wait for all streams to finish
     spark.streams.awaitAnyTermination()
