@@ -1,8 +1,8 @@
 package parquetHelper
 
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType}
-import radio.Song
+import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
 object ParquetService {
@@ -39,7 +39,7 @@ object ParquetService {
     batchWay.show()
   }
 
-  def streamingWay() : DataFrame= {
+  def streamingWay() : Dataset[SimpleSongAggregation] = {
     spark
       .readStream
       .schema(ParquetService.schema)
@@ -49,6 +49,7 @@ object ParquetService {
       .where($"artist" === "Drake")
       .groupBy($"radio", $"artist",  $"title")
       .count()
+      .as[SimpleSongAggregation]
   }
 
   //Process stream on console to debug only

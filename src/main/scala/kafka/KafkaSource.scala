@@ -1,8 +1,9 @@
 package kafka
 
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.functions.{struct, to_json, _}
 import org.apache.spark.sql.types.{StringType, _}
+import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
 
 /**
@@ -14,13 +15,13 @@ object KafkaSource {
   import spark.implicits._
 
   /**
-    * will return, we keep kafka metadata for our example, otherwise we would only focus on "radioCount" structure
+    * will return, we keep some kafka metadata for our example, otherwise we would only focus on "radioCount" structure
      |-- key: binary (nullable = true)
      |-- value: binary (nullable = true)
-     |-- topic: string (nullable = true)
-     |-- partition: integer (nullable = true)
-     |-- offset: long (nullable = true)
-     |-- timestamp: timestamp (nullable = true)
+     |-- topic: string (nullable = true) : KEPT
+     |-- partition: integer (nullable = true) : KEPT
+     |-- offset: long (nullable = true) : KEPT
+     |-- timestamp: timestamp (nullable = true) : KEPT
      |-- timestampType: integer (nullable = true)
      |-- radioCount: struct (nullable = true)
      |    |-- title: string (nullable = true)
@@ -33,7 +34,7 @@ object KafkaSource {
     *
     * startingOffsets should use a JSON coming from the lastest offsets saved in our DB (Cassandra here)
     */
-    def read(startingOption: String = "startingOffsets", partitionsAndOffsets: String = "earliest") = {
+    def read(startingOption: String = "startingOffsets", partitionsAndOffsets: String = "earliest") : Dataset[SimpleSongAggregationKafka] = {
     spark
       .readStream
       .format("kafka")
@@ -45,7 +46,7 @@ object KafkaSource {
       .option(startingOption, partitionsAndOffsets) //this only applies when a new query is started and that resuming will always pick up from where the query left off
       .load()
       .withColumn(KafkaService.radioStructureName, // nested structure with our json
-        from_json($"value".cast(StringType), KafkaService.schemaOutput)
-      ) //From binary to JSON object
+        from_json($"value".cast(StringType), KafkaService.schemaOutput) //From binary to JSON object
+      ).as[SimpleSongAggregationKafka]
   }
 }

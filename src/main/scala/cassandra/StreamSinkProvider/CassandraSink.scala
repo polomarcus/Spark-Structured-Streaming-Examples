@@ -1,7 +1,7 @@
 package cassandra.StreamSinkProvider
 
 import cassandra.{CassandraDriver, CassandraKafkaMetadata}
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.execution.streaming.Sink
 import org.apache.spark.sql.functions.max
 import spark.SparkHelper
@@ -10,6 +10,7 @@ import com.datastax.spark.connector._
 import kafka.KafkaMetadata
 import org.apache.spark.sql.execution.streaming.Sink
 import org.apache.spark.sql.types.LongType
+import radio.SimpleSongAggregation
 
 /**
 * must be idempotent and synchronous (@TODO check asynchronous/synchronous from Datastax's Spark connector) sink
@@ -20,7 +21,7 @@ class CassandraSink() extends Sink {
   import org.apache.spark.sql.functions._
 
   private def saveToCassandra(df: DataFrame) = {
-    println("Saving this DF to Cassandra")
+    println("Saving this DS to Cassandra")
     val ds = CassandraDriver.getDatasetForCassandra(df)
     ds.show() //Debug only
 
