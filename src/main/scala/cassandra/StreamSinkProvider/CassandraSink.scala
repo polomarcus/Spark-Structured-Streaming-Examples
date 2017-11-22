@@ -21,7 +21,6 @@ class CassandraSink() extends Sink {
   import org.apache.spark.sql.functions._
 
   private def saveToCassandra(df: DataFrame) = {
-    println("Saving this DS to Cassandra")
     val ds = CassandraDriver.getDatasetForCassandra(df)
     ds.show() //Debug only
 
@@ -38,7 +37,7 @@ class CassandraSink() extends Sink {
    * converting to an RDD allows us to do magic.
    */
   override def addBatch(batchId: Long, df: DataFrame) = {
-    println(s"saveToCassandra batchId : ${batchId}")
+    println(s"CassandraSink - Datastax's saveToCassandra method -  batchId : ${batchId}")
     saveToCassandra(df)
   }
 
@@ -48,9 +47,12 @@ class CassandraSink() extends Sink {
     * should be done in the same transaction as the data linked to the offsets
     */
   private def saveKafkaMetaData(df: DataFrame) = {
-    val kafkaMetadata = df.groupBy($"partition").agg(max($"offset").cast(LongType).as("offset")).as[KafkaMetadata]
+    val kafkaMetadata = df
+      .groupBy($"partition")
+      .agg(max($"offset").cast(LongType).as("offset"))
+      .as[KafkaMetadata]
 
-    println("saveKafkaMetaData")
+    println("Saving Kafka Metadata (partition and offset per topic (only one in our example)")
     kafkaMetadata.show()
 
     kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,
