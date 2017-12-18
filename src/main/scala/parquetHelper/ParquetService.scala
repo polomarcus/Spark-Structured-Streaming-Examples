@@ -1,7 +1,8 @@
 package parquetHelper
 
 import org.apache.spark.sql.{DataFrame, Dataset}
-import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions.window
 import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
@@ -12,7 +13,7 @@ object ParquetService {
   import spark.implicits._
 
   val schema = new StructType()
-    .add("timestamp", IntegerType)
+    .add("timestamp", TimestampType)
     .add("title", StringType)
     .add("artist", StringType)
     .add("radio", StringType)
@@ -35,6 +36,7 @@ object ParquetService {
         .where($"artist" === "Drake")
         .groupBy($"radio", $"artist",  $"title")
         .count()
+        .orderBy("count")
 
     batchWay.show()
   }
@@ -50,6 +52,19 @@ object ParquetService {
       .groupBy($"radio", $"artist",  $"title")
       .count()
       .as[SimpleSongAggregation]
+  }
+
+  def streamEachEvent : DataFrame = {
+    spark
+      .readStream
+      .schema(ParquetService.schema)
+      .option("maxFilesPerTrigger", 20)  // Treat a sequence of files as a stream by picking one file at a time
+      .parquet(pathRadioStationSongs)
+      .as[Song]
+      .where($"artist" === "Drake")
+      .groupBy( $"timestamp", $"radio", $"artist",  $"title")
+      .count()
+      //.as[SimpleSongAggregation]
   }
 
   //Process stream on console to debug only
