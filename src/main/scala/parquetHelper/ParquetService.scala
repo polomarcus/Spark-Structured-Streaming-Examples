@@ -3,11 +3,13 @@ package parquetHelper
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions.window
+import org.apache.spark.sql.functions.col
 import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
 object ParquetService {
-  val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
+  //val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
+  val pathRadioStationSongs = "data/broadcast.parquet"
 
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
@@ -32,13 +34,15 @@ object ParquetService {
         .read
         .schema(ParquetService.schema)
         .parquet(pathRadioStationSongs)
-        .as[Song]
         .where($"artist" === "Drake")
         .groupBy($"radio", $"artist",  $"title")
         .count()
         .orderBy("count")
+        .as[Song]
 
     batchWay.show()
+
+    batchWay
   }
 
   def streamingWay() : Dataset[SimpleSongAggregation] = {
@@ -54,7 +58,7 @@ object ParquetService {
       .as[SimpleSongAggregation]
   }
 
-  def streamEachEvent : DataFrame = {
+  def streamEachEvent : Dataset[Song]  = {
     spark
       .readStream
       .schema(ParquetService.schema)
@@ -62,9 +66,8 @@ object ParquetService {
       .parquet(pathRadioStationSongs)
       .as[Song]
       .where($"artist" === "Drake")
-      .groupBy( $"timestamp", $"radio", $"artist",  $"title")
-      .count()
-      //.as[SimpleSongAggregation]
+      .withWatermark("timestamp", "10 minutes")
+      .as[Song]
   }
 
   //Process stream on console to debug only
