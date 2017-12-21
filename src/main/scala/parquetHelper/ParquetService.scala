@@ -8,8 +8,8 @@ import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
 object ParquetService {
-  //val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
-  val pathRadioStationSongs = "data/broadcast.parquet"
+  val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
+  val pathRadioES = "data/broadcast.parquet"
 
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
@@ -62,8 +62,8 @@ object ParquetService {
     spark
       .readStream
       .schema(ParquetService.schema)
-      .option("maxFilesPerTrigger", 20)  // Treat a sequence of files as a stream by picking one file at a time
-      .parquet(pathRadioStationSongs)
+      .option("maxFilesPerTrigger", 1000)  // Treat a sequence of files as a stream by picking one file at a time
+      .parquet(pathRadioES)
       .as[Song]
       .where($"artist" === "Drake")
       .withWatermark("timestamp", "10 minutes")

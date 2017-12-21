@@ -9,8 +9,6 @@ import org.elasticsearch.spark.sql.streaming.EsSparkSqlStreamingSink
 
 object ElasticSink {
   def writeStream(ds: Dataset[Song] ) : StreamingQuery = {
-    ds.printSchema()
-
     ds   //Append output mode not supported when there are streaming aggregations on streaming DataFrames/DataSets without watermark
       .writeStream
       .outputMode(OutputMode.Append) //Only mode for ES

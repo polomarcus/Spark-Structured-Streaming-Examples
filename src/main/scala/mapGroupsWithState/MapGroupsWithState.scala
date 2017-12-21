@@ -14,6 +14,7 @@ object MapGroupsWithState {
 
 
   def updateArtistStateWithEvent(state: ArtistAggregationState, artistCount : SimpleSongAggregation) = {
+    println("MapGroupsWithState - updateArtistStateWithEvent")
     if(state.artist == artistCount.artist) {
       ArtistAggregationState(state.artist, state.count + artistCount.count)
     } else {

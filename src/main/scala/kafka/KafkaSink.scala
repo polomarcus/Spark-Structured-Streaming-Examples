@@ -13,6 +13,7 @@ object KafkaSink {
   import spark.implicits._
 
   def writeStream(staticInputDS: Dataset[SimpleSongAggregation]) : StreamingQuery = {
+    println("Writing to Kafka")
     staticInputDS
       .select(to_json(struct($"*")).cast(StringType).alias("value"))
       .writeStream
