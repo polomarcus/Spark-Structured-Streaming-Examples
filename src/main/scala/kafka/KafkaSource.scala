@@ -35,7 +35,9 @@ object KafkaSource {
     * startingOffsets should use a JSON coming from the lastest offsets saved in our DB (Cassandra here)
     */
     def read(startingOption: String = "startingOffsets", partitionsAndOffsets: String = "earliest") : Dataset[SimpleSongAggregationKafka] = {
-    spark
+      println("Reading from Kafka")
+
+      spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
@@ -48,5 +50,6 @@ object KafkaSource {
       .withColumn(KafkaService.radioStructureName, // nested structure with our json
         from_json($"value".cast(StringType), KafkaService.schemaOutput) //From binary to JSON object
       ).as[SimpleSongAggregationKafka]
+      .filter(_.radioCount != null) //TODO find a better way to filter bad json
   }
 }

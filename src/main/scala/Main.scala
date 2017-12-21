@@ -1,6 +1,7 @@
 package main
 
 import cassandra.CassandraDriver
+import elastic.ElasticSink
 import kafka.{KafkaSink, KafkaSource}
 import mapGroupsWithState.MapGroupsWithState
 import parquetHelper.ParquetService
@@ -14,11 +15,16 @@ object Main {
     //Classic Batch
     //ParquetService.batchWay()
 
+    //Streaming way
     //Generate a "fake" stream from a parquet file
-    val staticInputDS = ParquetService.streamingWay()
+    val streamDS = ParquetService.streamingWay()
+
+    val songEvent = ParquetService.streamEachEvent
+
+    ElasticSink.writeStream(songEvent)
 
     //Send it to Kafka for our example
-    KafkaSink.writeStream(staticInputDS)
+    KafkaSink.writeStream(streamDS)
 
     //Finally read it from kafka, in case checkpointing is not available we read last offsets saved from Cassandra
     val (startingOption, partitionsAndOffsets) = CassandraDriver.getKafaMetadata()

@@ -17,7 +17,7 @@ sbt run
 @TODO docker compose
 * Cassandra 3.10 (see below to create the 2 tables the project uses)
 * Kafka 0.10+ (with Zookeeper), with one topic "test". See [this Kafka script](https://github.com/polomarcus/Spark-Structured-Streaming-Examples/blob/master/stackScripts/startKafkaStack.sh)
-
+* Elastic 6.1 [script](https://github.com/polomarcus/Spark-Structured-Streaming-Examples/blob/master/stackScripts/startElastic.sh)
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
@@ -120,6 +120,8 @@ cqlsh> SELECT * FROM test.kafkametadata;
 * https://databricks.com/blog/2017/04/04/real-time-end-to-end-integration-with-apache-kafka-in-apache-sparks-structured-streaming.html
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
 * https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
+* [Elastic Structured Streamin doc](https://www.elastic.co/blog/structured-streaming-elasticsearch-for-hadoop-6-0)
+* [Structured Streaming - “Failed to find data source: es” ](https://discuss.elastic.co/t/structured-streaming-failed-to-find-data-source-es)
 * [Arbitrary Stateful Processing in Apache Spark’s Structured Streaming][1]
 * [Deep dive stateful stream processing][2] 
 * [Official documentation][3]
