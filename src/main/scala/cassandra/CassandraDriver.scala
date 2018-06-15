@@ -74,17 +74,22 @@ object CassandraDriver {
     *  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source.
     */
   def getKafaMetadata() = {
-    val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+    try {
+      val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
-    val output = if(kafkaMetadataRDD.isEmpty) {
-      ("startingOffsets", "earliest")
-    } else {
-      ("startingOffsets", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
+      val output = if (kafkaMetadataRDD.isEmpty) {
+        ("startingOffsets", "earliest")
+      } else {
+        ("startingOffsets", transformKafkaMetadataArrayToJson(kafkaMetadataRDD.collect()))
+      }
+      println("getKafkaMetadata " + output.toString)
+
+      output
     }
-
-    println("getKafkaMetadata " + output.toString)
-
-    output
+    catch {
+      case e: Exception =>
+        ("startingOffsets", "earliest")
+    }
   }
 
   /**

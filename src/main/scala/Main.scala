@@ -29,8 +29,8 @@ object Main {
     //Saving using Datastax connector's saveToCassandra method
     CassandraDriver.saveStreamSinkProvider(kafkaInputDF)
 
-    //Saving using the foreach method
-    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL  --> just here for example
+    // [unsafe] Saving using the foreach method --> just here for example / curious people
+    //CassandraDriver.saveForeach(kafkaInputDF) //Untype/unsafe method using CQL
 
     //Wait for all streams to finish
     spark.streams.awaitAnyTermination()

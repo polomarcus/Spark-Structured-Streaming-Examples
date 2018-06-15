@@ -21,19 +21,14 @@ chmod +x /usr/local/bin/docker-compose
 ```
 
 #### Run
-Start the ZooKeeper and Kafka containers in detached mode (-d)
+Start the ZooKeeper, Kafka, Cassandra containers in detached mode (-d)
 ```
-docker-compose -f docker-compose-kafka.yml up -d
+docker-compose up -d
+
 ```
 
-Create a topic named "test"
-```
-./startKafkaStack.sh
-```
-
-
-* Cassandra 3.10 (see below to create the 2 tables the project uses)
-* [Kafka and Zookeeper from Confluent](https://docs.confluent.io/current/installation/docker/docs/quickstart.html#getting-started-with-docker-compose)
+* [The last pickle's docker example](https://github.com/thelastpickle/docker-cassandra-bootstrap/blob/master/docker-compose.yml)
+* [Confluence's Kafka docker compose](https://docs.confluent.io/current/installation/docker/docs/quickstart.html#getting-started-with-docker-compose)
 
 ## Input data
 Coming from radio stations stored inside a parquet file, the stream is emulated with ` .option("maxFilesPerTrigger", 1)` option.
@@ -141,5 +136,3 @@ cqlsh> SELECT * FROM test.kafkametadata;
 * https://github.com/ansrivas/spark-structured-streaming
 * [Holden Karau's High Performance Spark](https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66)
 * [Jay Kreps blog articles](https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f)
-
-
