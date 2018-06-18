@@ -1,9 +1,7 @@
 #!/bin/bash
 
-#Cassandra 3.10
-#screen -dmS "Cassandra"
-/home/paul/bigdata/apache-cassandra-3.10/bin/cassandra
+# create Cassandra schema
+docker-compose exec cassandra cqlsh -f /schema.cql;
 
-#Launch Cassandra Query Language shell
-#/home/paul/bigdata/apache-cassandra-3.10/bin/cqlsh
-
+# confirm schema
+docker-compose exec cassandra cqlsh -e "DESCRIBE SCHEMA;"

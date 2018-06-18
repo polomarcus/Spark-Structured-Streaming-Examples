@@ -1,6 +1,6 @@
 resolvers += "Spark Packages Repo" at "https://dl.bintray.com/spark-packages/maven"
 
-name := "SparkStructuredStreamingCassandra"
+name := "Spark-Structured-Streaming-Examples"
 
 version := "1.0"
 scalaVersion := "2.11.12"
@@ -14,3 +14,6 @@ libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % sparkV
 libraryDependencies += "com.datastax.spark" %% "spark-cassandra-connector" % "2.0.2"
 
 fork in run := true
+
+libraryDependencies += "org.elasticsearch" % "elasticsearch-hadoop" % "6.1.0"
+

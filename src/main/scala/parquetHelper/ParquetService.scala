@@ -1,18 +1,21 @@
 package parquetHelper
 
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructType}
-import radio.Song
+import org.apache.spark.sql.{DataFrame, Dataset}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions.window
+import org.apache.spark.sql.functions.col
+import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
 object ParquetService {
   val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
+  val pathRadioES = "data/broadcast.parquet"
 
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
 
   val schema = new StructType()
-    .add("timestamp", IntegerType)
+    .add("timestamp", TimestampType)
     .add("title", StringType)
     .add("artist", StringType)
     .add("radio", StringType)
@@ -31,15 +34,18 @@ object ParquetService {
         .read
         .schema(ParquetService.schema)
         .parquet(pathRadioStationSongs)
-        .as[Song]
         .where($"artist" === "Drake")
         .groupBy($"radio", $"artist",  $"title")
         .count()
+        .orderBy("count")
+        .as[Song]
 
     batchWay.show()
+
+    batchWay
   }
 
-  def streamingWay() : DataFrame= {
+  def streamingWay() : Dataset[SimpleSongAggregation] = {
     spark
       .readStream
       .schema(ParquetService.schema)
@@ -49,6 +55,19 @@ object ParquetService {
       .where($"artist" === "Drake")
       .groupBy($"radio", $"artist",  $"title")
       .count()
+      .as[SimpleSongAggregation]
+  }
+
+  def streamEachEvent : Dataset[Song]  = {
+    spark
+      .readStream
+      .schema(ParquetService.schema)
+      .option("maxFilesPerTrigger", 1000)  // Treat a sequence of files as a stream by picking one file at a time
+      .parquet(pathRadioES)
+      .as[Song]
+      .where($"artist" === "Drake")
+      .withWatermark("timestamp", "10 minutes")
+      .as[Song]
   }
 
   //Process stream on console to debug only

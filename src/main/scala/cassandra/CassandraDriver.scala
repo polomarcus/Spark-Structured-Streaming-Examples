@@ -4,7 +4,7 @@ import org.apache.spark.sql._
 import com.datastax.spark.connector._
 import com.datastax.spark.connector.cql.CassandraConnector
 import kafka.KafkaService
-import radio.SimpleSongAggregation
+import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
 import foreachSink._
 
@@ -40,7 +40,7 @@ object CassandraDriver {
 
   //https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach
   //https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes
-  def saveForeach(df: DataFrame) = {
+  def saveForeach(df: DataFrame ) = {
     val ds = CassandraDriver.getDatasetForCassandra(df)
 
     ds
@@ -51,8 +51,9 @@ object CassandraDriver {
       .start()
   }
 
-  def saveStreamSinkProvider(df: DataFrame) = {
-    df
+  def saveStreamSinkProvider(ds: Dataset[SimpleSongAggregationKafka]) = {
+    ds
+      .toDF() //@TODO see if we can use directly the Dataset object
       .writeStream
       .format("cassandra.StreamSinkProvider.CassandraSinkProvider")
       .outputMode("update")

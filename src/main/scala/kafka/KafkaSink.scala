@@ -1,8 +1,10 @@
 package kafka
 
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.functions.{struct, to_json, _}
+import org.apache.spark.sql.streaming.StreamingQuery
 import org.apache.spark.sql.types.{StringType, _}
+import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
 
 object KafkaSink {
@@ -10,8 +12,9 @@ object KafkaSink {
 
   import spark.implicits._
 
-  def writeStream(staticInputDF: DataFrame) = {
-    staticInputDF
+  def writeStream(staticInputDS: Dataset[SimpleSongAggregation]) : StreamingQuery = {
+    println("Writing to Kafka")
+    staticInputDS
       .select(to_json(struct($"*")).cast(StringType).alias("value"))
       .writeStream
       .outputMode("update")
@@ -24,20 +27,14 @@ object KafkaSink {
 
   /**
       Console sink from Kafka's stream
+      +----+--------------------+-----+---------+------+--------------------+-------------+--------------------+
+      | key|               value|topic|partition|offset|           timestamp|timestampType|          radioCount|
+      +----+--------------------+-----+---------+------+--------------------+-------------+--------------------+
+      |null|[7B 22 72 61 64 6...| test|        0|    60|2017-11-21 22:56:...|            0|[Feel No Ways,Dra...|
     *
     */
-  def debugStream(staticKafkaInputDF: DataFrame) = {
-    staticKafkaInputDF
-      .select($"topic", $"partition", $"offset", $"value".cast(StringType).alias("value")) //to avoid using cast to string multiple times
-      .select(
-        get_json_object($"value", "$.radio").alias("radio"),
-        get_json_object($"value", "$.title").alias("title"),
-        get_json_object($"value", "$.artist").alias("artist"),
-        get_json_object($"value", "$.count").alias("count"),
-        $"topic",
-        $"partition",
-        $"offset"
-      )
+  def debugStream(staticKafkaInputDS: Dataset[SimpleSongAggregationKafka]) = {
+    staticKafkaInputDS
       .writeStream
       .queryName("Debug Stream Kafka")
       .format("console")
