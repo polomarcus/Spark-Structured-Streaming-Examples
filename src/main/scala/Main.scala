@@ -21,7 +21,7 @@ object Main {
 
     val songEvent = ParquetService.streamEachEvent
 
-    ElasticSink.writeStream(songEvent)
+    //ElasticSink.writeStream(songEvent)
 
     //Send it to Kafka for our example
     KafkaSink.writeStream(streamDS)

@@ -7,8 +7,9 @@ import kafka.KafkaService
 import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
 import foreachSink._
+import log.LazyLogger
 
-object CassandraDriver {
+object CassandraDriver extends LazyLogger {
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
 
@@ -22,10 +23,10 @@ object CassandraDriver {
     val rdd = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
     if( !rdd.isEmpty ) {
-      println(rdd.count)
-      println(rdd.first)
+      log.warn(rdd.count)
+      log.warn(rdd.first)
     } else {
-      println(s"$namespace, $kafkaMetadata is empty in cassandra")
+      log.warn(s"$namespace, $kafkaMetadata is empty in cassandra")
     }
   }
 
@@ -81,7 +82,7 @@ object CassandraDriver {
       } else {
         ("startingOffsets", transformKafkaMetadataArrayToJson(kafkaMetadataRDD.collect()))
       }
-      println("getKafkaMetadata " + output.toString)
+      log.warn("getKafkaMetadata " + output.toString)
 
       output
     }
@@ -107,6 +108,6 @@ object CassandraDriver {
   def debug() = {
    val output = spark.sparkContext.cassandraTable(namespace, foreachTableSink)
 
-    println(output.count)
+    log.warn(output.count)
   }
 }

@@ -2,6 +2,7 @@ package kafka
 
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.functions.{struct, to_json, _}
+import _root_.log.LazyLogger
 import org.apache.spark.sql.types.{StringType, _}
 import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
@@ -9,7 +10,7 @@ import spark.SparkHelper
 /**
  @see https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
  */
-object KafkaSource {
+object KafkaSource extends LazyLogger {
   private val spark = SparkHelper.getSparkSession()
 
   import spark.implicits._
@@ -35,7 +36,7 @@ object KafkaSource {
     * startingOffsets should use a JSON coming from the lastest offsets saved in our DB (Cassandra here)
     */
     def read(startingOption: String = "startingOffsets", partitionsAndOffsets: String = "earliest") : Dataset[SimpleSongAggregationKafka] = {
-      println("Reading from Kafka")
+      log.warn("Reading from Kafka")
 
       spark
       .readStream
