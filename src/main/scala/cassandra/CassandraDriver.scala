@@ -6,7 +6,6 @@ import com.datastax.spark.connector.cql.CassandraConnector
 import kafka.KafkaService
 import radio.SimpleSongAggregation
 import spark.SparkHelper
-import StreamSinkProvider._
 import foreachSink._
 
 object CassandraDriver {
@@ -15,11 +14,10 @@ object CassandraDriver {
 
   val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
 
-  val namespace = "test"
+  val namespace = "structuredstreaming"
   val foreachTableSink = "radio"
   val StreamProviderTableSink = "radioothersink"
   val kafkaMetadata = "kafkametadata"
-
   def getTestInfo() = {
     val rdd = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 

@@ -11,7 +11,7 @@ import radio.SimpleSongAggregation
   */
 class CassandraSinkForeach() extends ForeachWriter[SimpleSongAggregation] {
   private def cqlRadio(record: SimpleSongAggregation): String = s"""
-       insert into test.radio (title, artist, radio, count)
+       insert into ${CassandraDriver.namespace}.${CassandraDriver.foreachTableSink} (title, artist, radio, count)
        values('${record.title}', '${record.artist}', '${record.radio}', ${record.count})"""
 
   def open(partitionId: Long, version: Long): Boolean = {

@@ -26,12 +26,11 @@ services:
       - "moby:127.0.0.1"
       - "localhost: 127.0.0.1"
 
-  cqlsh:
+  cassandra:
     image: cassandra:3.11
     ports:
       - "9042:9042"
       - "7199:7199"
-    entrypoint: cqlsh cassandra
     volumes:
       - ./src/conf/cassandra/schema.cql:/schema.cql
     extra_hosts:
