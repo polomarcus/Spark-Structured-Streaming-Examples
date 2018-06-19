@@ -1,14 +1,18 @@
-# Kafka / Cassandra / Elastic Spark Structured Streaming Example
+# Kafka / Cassandra / Elastic with Spark Structured Streaming
 Stream the number of time **Drake is broadcasted** on each radio.
-And also, see how easy is Spark Structured Streaming 2.2.0 to use using Spark SQL's Dataframe API
+And also, see how easy is Spark Structured Streaming to use using Spark SQL's Dataframe API
 
 ## Run the Project
 ### Step 1 - Start containers
 Start the ZooKeeper, Kafka, Cassandra containers in detached mode (-d)
 ```
+./start-docker-compose.sh
+```
+It will run these 2 commands together so you don't have to
+```
 docker-compose up -d
 ```
-### Step 2 - Create cassandra schema
+
 ```
 # create Cassandra schema
 docker-compose exec cassandra cqlsh -f /schema.cql;
@@ -17,7 +21,7 @@ docker-compose exec cassandra cqlsh -f /schema.cql;
 docker-compose exec cassandra cqlsh -e "DESCRIBE SCHEMA;"
 ```
 
-### Step 3 - start spark structured streaming
+### Step 2 - start spark structured streaming
 ```
 sbt run
 ```
@@ -32,16 +36,27 @@ sbt run
 ## Monitor
 * Spark : http://localhost:4040/SQL/
 * Kibana (index "test") : http://localhost:5601/app/kibana#/discover
+* Kafka : Read all messages sent
+```
+docker-compose exec kafka  \
+ kafka-console-consumer --bootstrap-server localhost:9092 --topic test --from-beginning
+```
 
+Examples:
+```
+{"radio":"nova","artist":"Drake","title":"From Time","count":18}
+{"radio":"nova","artist":"Drake","title":"4pm In Calabasas","count":1}
+```
 ## Requirements
 * SBT
 * [docker compose](https://github.com/docker/compose/releases/tag/1.17.1)
-** Linux
+
+### Linux
 ```
 curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 ```
-**  MacOS
+### MacOS
 ```
 brew install docker-compose
 ```
@@ -69,15 +84,7 @@ One topic `test` with only one partition
 docker-compose exec kafka  \
   kafka-topics --list --zookeeper zookeeper:32181
 ```
-#### Read all messages
-```
-docker-compose exec kafka  \
- kafka-console-consumer --bootstrap-server localhost:9092 --topic test --from-beginning
-```
-```
-{"radio":"nova","artist":"Drake","title":"From Time","count":18}
-{"radio":"nova","artist":"Drake","title":"4pm In Calabasas","count":1}
-```
+
 
 #### Send a message to be processed
 ```
