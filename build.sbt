@@ -15,5 +15,5 @@ libraryDependencies += "com.datastax.spark" %% "spark-cassandra-connector" % "2.
 
 fork in run := true
 
-libraryDependencies += "org.elasticsearch" % "elasticsearch-hadoop" % "6.1.0"
+libraryDependencies += "org.elasticsearch" % "elasticsearch-hadoop" % "6.3.0"
 

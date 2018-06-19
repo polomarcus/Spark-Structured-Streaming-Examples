@@ -37,15 +37,18 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
     container_name: elasticsearch
-    environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1']
-    ports: ['127.0.0.1:9200:9200']
+#   environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1']
+    ports:
+      - "9200:9200"
     extra_hosts:
       - "localhost: 127.0.0.1"
 
   kibana:
     image: docker.elastic.co/kibana/kibana:6.3.0
     container_name: kibana
-    ports: ['127.0.0.1:5601:5601']
+
+    ports:
+      - "5601:5601"
     depends_on: ['elasticsearch']
     extra_hosts:
       - "localhost: 127.0.0.1"

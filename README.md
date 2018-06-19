@@ -29,6 +29,10 @@ rm -rf checkpoint/
 sbt run
 ```
 
+## Monitor
+* Spark : http://localhost:4040/SQL/
+* Kibana (index "test") : http://localhost:5601/app/kibana#/discover
+
 ## Requirements
 * SBT
 * [docker compose](https://github.com/docker/compose/releases/tag/1.17.1)
