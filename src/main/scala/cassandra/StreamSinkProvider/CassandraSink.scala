@@ -8,6 +8,7 @@ import spark.SparkHelper
 import cassandra.CassandraDriver
 import com.datastax.spark.connector._
 import kafka.KafkaMetadata
+import log.LazyLogger
 import org.apache.spark.sql.execution.streaming.Sink
 import org.apache.spark.sql.types.LongType
 import radio.SimpleSongAggregation
@@ -15,7 +16,7 @@ import radio.SimpleSongAggregation
 /**
 * must be idempotent and synchronous (@TODO check asynchronous/synchronous from Datastax's Spark connector) sink
 */
-class CassandraSink() extends Sink {
+class CassandraSink() extends Sink with LazyLogger {
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
   import org.apache.spark.sql.functions._
@@ -37,7 +38,7 @@ class CassandraSink() extends Sink {
    * converting to an RDD allows us to do magic.
    */
   override def addBatch(batchId: Long, df: DataFrame) = {
-    println(s"CassandraSink - Datastax's saveToCassandra method -  batchId : ${batchId}")
+    log.warn(s"CassandraSink - Datastax's saveToCassandra method -  batchId : ${batchId}")
     saveToCassandra(df)
   }
 
@@ -52,7 +53,7 @@ class CassandraSink() extends Sink {
       .agg(max($"offset").cast(LongType).as("offset"))
       .as[KafkaMetadata]
 
-    println("Saving Kafka Metadata (partition and offset per topic (only one in our example)")
+    log.warn("Saving Kafka Metadata (partition and offset per topic (only one in our example)")
     kafkaMetadata.show()
 
     kafkaMetadata.rdd.saveToCassandra(CassandraDriver.namespace,

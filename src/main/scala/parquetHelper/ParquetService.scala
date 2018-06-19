@@ -1,13 +1,12 @@
 package parquetHelper
 
+import log.LazyLogger
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.functions.window
-import org.apache.spark.sql.functions.col
 import radio.{SimpleSongAggregation, Song}
 import spark.SparkHelper
 
-object ParquetService {
+object ParquetService extends LazyLogger {
   val pathRadioStationSongs = "data/allRadioPartitionByRadioAndDate.parquet"
   val pathRadioES = "data/broadcast.parquet"
 
@@ -46,6 +45,8 @@ object ParquetService {
   }
 
   def streamingWay() : Dataset[SimpleSongAggregation] = {
+    log.warn("Starting to stream events from Parquet files....")
+
     spark
       .readStream
       .schema(ParquetService.schema)

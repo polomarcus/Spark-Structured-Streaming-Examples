@@ -6,28 +6,27 @@ import com.datastax.spark.connector.cql.CassandraConnector
 import kafka.KafkaService
 import radio.{SimpleSongAggregation, SimpleSongAggregationKafka}
 import spark.SparkHelper
-import StreamSinkProvider._
 import foreachSink._
+import log.LazyLogger
 
-object CassandraDriver {
+object CassandraDriver extends LazyLogger {
   private val spark = SparkHelper.getSparkSession()
   import spark.implicits._
 
   val connector = CassandraConnector(SparkHelper.getSparkSession().sparkContext.getConf)
 
-  val namespace = "test"
+  val namespace = "structuredstreaming"
   val foreachTableSink = "radio"
   val StreamProviderTableSink = "radioothersink"
   val kafkaMetadata = "kafkametadata"
-
   def getTestInfo() = {
     val rdd = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
     if( !rdd.isEmpty ) {
-      println(rdd.count)
-      println(rdd.first)
+      log.warn(rdd.count)
+      log.warn(rdd.first)
     } else {
-      println(s"$namespace, $kafkaMetadata is empty in cassandra")
+      log.warn(s"$namespace, $kafkaMetadata is empty in cassandra")
     }
   }
 
@@ -75,17 +74,22 @@ object CassandraDriver {
     *  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source.
     */
   def getKafaMetadata() = {
-    val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
+    try {
+      val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
-    val output = if(kafkaMetadataRDD.isEmpty) {
-      ("startingOffsets", "earliest")
-    } else {
-      ("startingOffsets", transformKafkaMetadataArrayToJson( kafkaMetadataRDD.collect() ) )
+      val output = if (kafkaMetadataRDD.isEmpty) {
+        ("startingOffsets", "earliest")
+      } else {
+        ("startingOffsets", transformKafkaMetadataArrayToJson(kafkaMetadataRDD.collect()))
+      }
+      log.warn("getKafkaMetadata " + output.toString)
+
+      output
     }
-
-    println("getKafkaMetadata " + output.toString)
-
-    output
+    catch {
+      case e: Exception =>
+        ("startingOffsets", "earliest")
+    }
   }
 
   /**
@@ -104,6 +108,6 @@ object CassandraDriver {
   def debug() = {
    val output = spark.sparkContext.cassandraTable(namespace, foreachTableSink)
 
-    println(output.count)
+    log.warn(output.count)
   }
 }

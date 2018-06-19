@@ -4,7 +4,7 @@ import kafka.KafkaMetadata
 
 object CassandraKafkaMetadata {
   private def cql(metadata: KafkaMetadata): String = s"""
-       INSERT INTO test.kafkametadata (partition, offset)
+       INSERT INTO ${CassandraDriver.namespace}.${CassandraDriver.kafkaMetadata} (partition, offset)
        VALUES(${metadata.partition}, ${metadata.offset})
     """
 
