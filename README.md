@@ -1,4 +1,7 @@
 # Kafka / Cassandra / Elastic with Spark Structured Streaming
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/214d5a4420ef471cba15ca3c59c15de0)](https://app.codacy.com/app/paleclercq/Spark-Structured-Streaming-Examples?utm_source=github.com&utm_medium=referral&utm_content=polomarcus/Spark-Structured-Streaming-Examples&utm_campaign=Badge_Grade_Dashboard)
+
 Stream the number of time **Drake is broadcasted** on each radio.
 And also, see how easy is Spark Structured Streaming to use using Spark SQL's Dataframe API
 
