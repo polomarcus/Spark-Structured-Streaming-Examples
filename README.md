@@ -1,6 +1,7 @@
 # Kafka / Cassandra / Elastic with Spark Structured Streaming
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/214d5a4420ef471cba15ca3c59c15de0)](https://app.codacy.com/app/paleclercq/Spark-Structured-Streaming-Examples?utm_source=github.com&utm_medium=referral&utm_content=polomarcus/Spark-Structured-Streaming-Examples&utm_campaign=Badge_Grade_Dashboard)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpolomarcus%2FSpark-Structured-Streaming-Examples.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpolomarcus%2FSpark-Structured-Streaming-Examples?ref=badge_shield)
 
 Stream the number of time **Drake is broadcasted** on each radio.
 And also, see how easy is Spark Structured Streaming to use using Spark SQL's Dataframe API
@@ -162,3 +163,7 @@ docker-compose exec cassandra cqlsh -e "SELECT * FROM structuredstreaming.kafkam
 * https://github.com/ansrivas/spark-structured-streaming
 * [Holden Karau's High Performance Spark](https://github.com/holdenk/spark-structured-streaming-ml/blob/master/src/main/scala/com/high-performance-spark-examples/structuredstreaming/CustomSink.scala#L66)
 * [Jay Kreps blog articles](https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpolomarcus%2FSpark-Structured-Streaming-Examples.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpolomarcus%2FSpark-Structured-Streaming-Examples?ref=badge_large)
