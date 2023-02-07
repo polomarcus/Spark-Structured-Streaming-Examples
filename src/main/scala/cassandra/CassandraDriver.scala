@@ -73,7 +73,7 @@ object CassandraDriver extends LazyLogger {
     *  assign	json string {"topicA":[0,1],"topicB":[2,4]}
     *  Specific TopicPartitions to consume. Only one of "assign", "subscribe" or "subscribePattern" options can be specified for Kafka source.
     */
-  def getKafaMetadata() = {
+  def getKafkaMetadata() = {
     try {
       val kafkaMetadataRDD = spark.sparkContext.cassandraTable(namespace, kafkaMetadata)
 
