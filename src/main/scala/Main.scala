@@ -27,7 +27,7 @@ object Main {
     KafkaSink.writeStream(streamDS)
 
     //Finally read it from kafka, in case checkpointing is not available we read last offsets saved from Cassandra
-    val (startingOption, partitionsAndOffsets) = CassandraDriver.getKafaMetadata()
+    val (startingOption, partitionsAndOffsets) = CassandraDriver.getKafkaMetadata()
     val kafkaInputDS = KafkaSource.read(startingOption, partitionsAndOffsets)
 
     //Just debugging Kafka source into our console
